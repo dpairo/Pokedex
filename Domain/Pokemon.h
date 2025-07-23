@@ -1,0 +1,52 @@
+//  Definition of the clases to store the data obtained with the pokeApi
+
+#ifndef POKEMON_H
+#define POKEMON_H
+
+#include <iostream>
+#include <vector>
+#include "PokemonDTO.h"
+
+struct Moves {
+    std::string method;
+    std::string moveName;
+    std::string category;
+    int attackPoints;
+    int precision;
+};
+
+struct Habilities {
+    std::string name;
+    bool isHidden;
+    int slot;
+};
+
+struct Statisticks {
+    int health;
+    int attack;
+    int defense;
+    int specialAttack;
+    int specialDefense;
+    int speed;
+};
+
+class Pokemon {
+    private:
+        std::string name;
+        std::string primaryType;
+        std::string secondaryType;
+        std::string eggGroup;
+        std::vector<Habilities> abilities;
+        std::vector<Moves> movements;
+        Statisticks stats;
+        int id;
+        int baseExperience;
+        int hatchCounter;
+
+    public:
+        Pokemon(const PokemonDTO &dataTransferObjetc);
+
+    friend std::ostream &operator<<(std::ostream &os, const Pokemon &Pokemon);
+};
+
+#endif
