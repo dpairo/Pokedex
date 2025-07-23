@@ -1,4 +1,4 @@
-//  Implementation of pokeApi functions
+//  Implementation of the PokeApi functions
 
 #include <iostream>
 #include <curl/curl.h>
@@ -6,15 +6,16 @@
 
 const std::string baseUrl = "https://pokeapi.co/api/v2/";
 
+//  size -> Size of each data unit recieved
+//  numberEntities -> Number of units of that size received
 size_t callBack(void* contents, size_t size, size_t numberEntities, std::string* output) {
-    //  size -> Size of each data unit recieved
-    //  numberEntities -> Number of units of that size received
-
     size_t totalSize = size * numberEntities;
     output->append((char*)contents, totalSize);
     return totalSize;
 }
 
+// TO-DO: This function can be splitted down in few more, to grant the responsability segregation
+// Here you are building up the URL, setting up the request callbacks and parameters, sending the request, and returning the json.
 std::string PokeApi::makeRequest(const std::string &endpoint) {
     std::string fullUrl = baseUrl + endpoint;
     std::string responseData;
