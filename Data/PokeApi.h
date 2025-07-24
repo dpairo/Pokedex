@@ -15,7 +15,10 @@ class PokeApi : public IPokemonRepository {
     private:
         PokemonDTO parseJsonToDTO(const nlohmann::json& json);
         std::string makeRequest(const std::string& endpoint);
-
+        std::string getPokemonName();
+        size_t callBack(void* contents, size_t size, size_t numberEntities, std::string* output);
+        void setCurlOptions(CURL* curl, const std::string& url, std::string& responseData);
+        void sendRequest(CURL* curl);
     public:
         Pokemon getPokemonByName() override;
         std::vector<std::unique_ptr<Moves>> getMovepoolFromPokemon() override;

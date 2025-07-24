@@ -8,14 +8,26 @@ const std::string baseUrl = "https://pokeapi.co/api/v2/";
 
 //  size -> Size of each data unit recieved
 //  numberEntities -> Number of units of that size received
-size_t callBack(void* contents, size_t size, size_t numberEntities, std::string* output) {
+size_t PokeApi::callBack(void* contents, size_t size, size_t numberEntities, std::string* output) {
     size_t totalSize = size * numberEntities;
     output->append((char*)contents, totalSize);
     return totalSize;
 }
 
-// TO-DO: This function can be splitted down in few more, to grant the responsability segregation
-// Here you are building up the URL, setting up the request callbacks and parameters, sending the request, and returning the json.
+void PokeApi::sendRequest(CURL* curl) {
+    CURLcode apiResponse = curl_easy_perform(curl);                 //  starts with the request and calls callBack everytime that gets data
+
+    if(apiResponse != CURLE_OK) {
+        //  call excepcions
+    }
+}
+
+void PokeApi::setCurlOptions(CURL* curl, const std::string& fullUrl, std::string& responseData) {
+    curl_easy_setopt(curl, CURLOPT_URL, fullUrl.c_str());           //  configures the url (only works with char)
+    curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, callBack);        //  everytime you recieve data use that function (callBack)
+    curl_easy_setopt(curl, CURLOPT_WRITEDATA, &responseData);       //  set the string where the data will be stored
+}
+
 std::string PokeApi::makeRequest(const std::string &endpoint) {
     std::string fullUrl = baseUrl + endpoint;
     std::string responseData;
@@ -23,20 +35,14 @@ std::string PokeApi::makeRequest(const std::string &endpoint) {
     CURL* curl = curl_easy_init();
 
     if(curl) {                                                          //  checks that everything is ok to start configuration
-        curl_easy_setopt(curl, CURLOPT_URL, fullUrl.c_str());           //  configures the url (only works with char)
-        curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, callBack);        //  everytime you recieve data use that function (callBack)
-        curl_easy_setopt(curl, CURLOPT_WRITEDATA, &responseData);       //  set the string where the data will be stored
-        CURLcode apiResponse = curl_easy_perform(curl);                 //  starts with the request and calls callBack everytime that gets data
-
-        if(apiResponse != CURLE_OK) {
-            //  call excepcions
-        }
+        setCurlOptions(curl, fullUrl, responseData);
+        sendRequest(curl);
         curl_easy_cleanup(curl);
     }
     return responseData;
 }
 
-std::string getPokemonName() {
+std::string PokeApi::getPokemonName() {
     std::string pokemonName;
 
     do {
