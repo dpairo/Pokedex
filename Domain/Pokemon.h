@@ -15,7 +15,7 @@ struct Moves {
     int precision;
 };
 
-struct Habilities {
+struct Abilities {
     std::string name;
     bool isHidden;
     int slot;
@@ -36,7 +36,7 @@ class Pokemon {
         std::string primaryType;
         std::string secondaryType;
         std::string eggGroup;
-        std::vector<Habilities> abilities;
+        std::vector<Abilities> abilities;
         std::vector<Moves> movements;
         Statisticks stats;
         int id;

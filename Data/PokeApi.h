@@ -23,7 +23,8 @@ class PokeApi : public IPokemonRepository {
         Pokemon getPokemonByName() override;
         std::vector<std::unique_ptr<Moves>> getMovepoolFromPokemon() override;
         std::vector<std::unique_ptr<Pokemon>> getAllPokemon() override;
-        std::vector<std::unique_ptr<Moves>> getAllPokemonMoves() override;
+        std::vector<std::unique_ptr<Abilities>> getAllAbilities() override;
+        std::vector<std::unique_ptr<Moves>> getAllMoves() override;
 };
 
 #endif
