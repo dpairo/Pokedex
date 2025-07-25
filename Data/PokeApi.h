@@ -20,7 +20,7 @@ class PokeApi : public IPokemonRepository {
         void setCurlOptions(CURL* curl, const std::string& url, std::string& responseData);
         void sendRequest(CURL* curl);
     public:
-        Pokemon getPokemonByName() override;
+        PokemonDTO getPokemonByName(const std::string &pokemonName) override;
         std::vector<std::unique_ptr<Moves>> getMovepoolFromPokemon() override;
         std::vector<std::unique_ptr<Pokemon>> getAllPokemon() override;
         std::vector<std::unique_ptr<Abilities>> getAllAbilities() override;

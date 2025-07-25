@@ -14,13 +14,13 @@ struct Moves {
     int precision;
 };
 
-struct Ability {
+struct Abilities {
     std::string name;
     bool isHidden;
     int slot;
 };
 
-struct Statisticks {
+struct Statistics {
     int health;
     int attack;
     int defense;
@@ -31,12 +31,11 @@ struct Statisticks {
 
 struct PokemonDTO {
     std::string name;
-    std::string primaryType;
-    std::string secondaryType;
-    std::string eggGroup;
-    std::vector<Ability> abilities;
-    std::vector<Moves> movements;
-    Statisticks stats;
+    std::vector<std::string> eggGroup;
+    std::vector<std::string> typing;
+    std::vector<std::string> evolutionChain;
+    std::vector<Abilities> abilities;
+    Statistics stats;
     int id;
     int baseExperience;
     int hatchCounter;

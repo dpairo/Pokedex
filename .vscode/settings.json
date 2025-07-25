@@ -78,7 +78,9 @@
     "iostream": "cpp",
     "vector": "cpp",
     "__locale": "cpp",
-    "ios": "cpp"
+    "ios": "cpp",
+    "array": "cpp",
+    "span": "cpp"
   },
   "C_Cpp.errorSquiggles": "enabled"
 }

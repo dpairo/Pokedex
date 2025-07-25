@@ -7,7 +7,7 @@
 
 class IJsonMapper {
 public:
-    virtual PokemonDTO transformJson(const std::string& jsonString) = 0;
+    virtual PokemonDTO transformDataPokemonJson(const std::string &pokemonDetailsRawJson, const std::string &pokemonSpeciesRawJson, std::string &evolutionChainUrl) = 0;
     virtual ~IJsonMapper() = default;
 };
 
