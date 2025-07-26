@@ -7,32 +7,9 @@
 #include <vector>
 #include "PokemonDTO.h"
 
-struct Moves {
-    std::string method;
-    std::string moveName;
-    std::string category;
-    int attackPoints;
-    int precision;
-};
-
-struct Abilities {
-    std::string name;
-    bool isHidden;
-    int slot;
-};
-
-struct Statistics {
-    int health;
-    int attack;
-    int defense;
-    int specialAttack;
-    int specialDefense;
-    int speed;
-};
-
 class Pokemon {
     private:
-        
+        std::string name;
         std::vector<std::string> eggGroup;
         std::vector<std::string> typing;
         std::vector<std::string> evolutionChain;
@@ -43,8 +20,16 @@ class Pokemon {
         int hatchCounter;
 
     public:
-        std::string name;
         Pokemon(const PokemonDTO &dataTransferObjetc);
+        std::string getName() const;
+        std::vector<std::string> getEggGroup() const;
+        std::vector<std::string> getTyping() const;
+        std::vector<std::string> getEvolutionChain() const;
+        std::vector<Abilities> getAbilities() const;
+        Statistics getStatistics() const;
+        int getId() const;
+        int getbaseExperience() const;
+        int gethatchCounter() const;
 
     friend std::ostream &operator<<(std::ostream &os, const Pokemon &Pokemon);
 };

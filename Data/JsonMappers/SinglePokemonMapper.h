@@ -1,7 +1,7 @@
 //  Definition of the interface for all the data mappers
 
-#ifndef _SINGLE_POKEMON_MAPPER.H_
-#define _SINGLE_POKEMON_MAPPER.H_
+#ifndef _SINGLE_POKEMON_MAPPER_H_
+#define _SINGLE_POKEMON_MAPPER_H_
 
 #include "Domain/PokemonDTO.h"
 #include "Domain/IMapper.h"
@@ -24,7 +24,7 @@ class SinglePokemonMapper : public IJsonMapper {
         const std::string speedSeeker = "speed";
         const std::string typesSeeker = "types";
         const std::string singleTypeSeeker = "type";
-        const std::string eggGruopsSeeker = "egg_groups";
+        const std::string eggGroupsSeeker = "egg_groups";
         const std::string idSeeker = "id";
         const std::string baseExperienceSeeker = "base_experience";
         const std::string hatchCounterSeeker = "hatch_counter";
@@ -41,7 +41,7 @@ class SinglePokemonMapper : public IJsonMapper {
         std::vector<std::string> parsePokemonEggGroups(const nlohmann::json &pokemonDataSpecies);
         std::vector<std::string> parsePokemonTyping(const nlohmann::json &pokemonDataDetails);
         std::string parsePokemonName(const nlohmann::json &pokemonDataDetails);
-        std::vector<Ability> parsePokemonAbilities(const nlohmann::json &pokemonDataDetails);
+        std::vector<Abilities> parsePokemonAbilities(const nlohmann::json &pokemonDataDetails);
         Statistics parsePokemonStats(const nlohmann::json &pokemonDataDetails);
     public:
         PokemonDTO transformDataPokemonJson(const std::string &pokemonDetailsRawJson, const std::string &pokemonSpeciesRawJson, std::string &evolutionChainUrl) override;

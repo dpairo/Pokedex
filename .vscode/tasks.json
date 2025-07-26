@@ -1,0 +1,31 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Compilar Pokedex",
+      "type": "shell",
+      "command": "clang++",
+      "args": [
+        "Program/Main.cc",
+        "Data/PokeApi.cc",
+        "Data/JsonMappers/SinglePokemonMapper.cc",
+        "Domain/Pokemon.cc",
+        "-std=c++17",
+        "-IData",
+        "-IDomain",
+        "-IData/JsonMappers",
+        "-IExcepcions",
+        "-IProgram",
+        "-lcurl",
+        "-I/opt/homebrew/include", // para nlohmann/json instalado con brew
+        "-o",
+        "Pokedex"
+      ],
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      },
+      "problemMatcher": []
+    }
+  ]
+}

@@ -31,7 +31,7 @@ void SinglePokemonMapper::parseEvolutionChainUrl(const nlohmann::json &pokemonDa
 
 int SinglePokemonMapper::parsePokemonHatchCounter(const nlohmann::json &pokemonDataSpecies) {
     int stepsToEclose = 255;
-    return pokemonDataSpecies[hatchCounterSeeker] * stepsToEclose;
+    return pokemonDataSpecies[hatchCounterSeeker].get<int>() * stepsToEclose;
 }
 
 int SinglePokemonMapper::parsePokemonBaseExp(const nlohmann::json &pokemonDataDetails) {
@@ -45,8 +45,8 @@ int SinglePokemonMapper::parsePokedexId(const nlohmann::json &pokemonDataDetails
 std::vector<std::string> SinglePokemonMapper::parsePokemonEggGroups(const nlohmann::json &pokemonDataSpecies){
     std::vector<std::string> eggGroups;
 
-    for(const auto &eggGroupData : pokemonDataSpecies[eggGruopsSeeker]) {
-        eggGroups.push_back(pokemonDataSpecies[nameSeeker]);
+    for(const auto &eggGroupData : pokemonDataSpecies[eggGroupsSeeker]) {
+        eggGroups.push_back(eggGroupData[nameSeeker]);
     }
     return eggGroups;
 }
@@ -86,11 +86,11 @@ Statistics SinglePokemonMapper::parsePokemonStats(const nlohmann::json &pokemonD
     return pokemonStats;
 }
 
-std::vector<Ability> SinglePokemonMapper::parsePokemonAbilities(const nlohmann::json &pokemonDataDetails) {
-    std::vector<Ability> abilitiesSet;
+std::vector<Abilities> SinglePokemonMapper::parsePokemonAbilities(const nlohmann::json &pokemonDataDetails) {
+    std::vector<Abilities> abilitiesSet;
 
     for(const auto &abilityData : pokemonDataDetails[abilitiesSeeker]) {
-        Ability auxiliarAbility;
+        Abilities auxiliarAbility;
         auxiliarAbility.name = abilityData[abilitySeeker][nameSeeker];
         auxiliarAbility.isHidden = abilityData[isAbilityHiddenSeeker];
         auxiliarAbility.slot = abilityData[slotSeeker];

@@ -1,0 +1,10 @@
+clang++ Program/Main.cc \
+  Data/PokeApi.cc \
+  Data/JsonMappers/SinglePokemonMapper.cc \
+  Domain/Pokemon.cc \
+  -std=c++17 \
+  -IData -IDomain -IData/JsonMappers -IExcepcions -IProgram -I. \
+  -I/opt/homebrew/include \
+  -I/opt/homebrew/include/nlohmann \
+  -lcurl \
+  -o Pokedex

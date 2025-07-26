@@ -11,10 +11,10 @@
 class IPokemonRepository {
 public:
     virtual PokemonDTO getPokemonByName(const std::string &pokemonName) = 0;
-    virtual std::vector<std::unique_ptr<Pokemon>> getAllPokemon() = 0;
-    virtual std::vector<std::unique_ptr<Moves>> getMovepoolFromPokemon() = 0;
-    virtual std::vector<std::unique_ptr<Abilities>> getAllAbilities() = 0;
-    virtual std::vector<std::unique_ptr<Moves>> getAllMoves() = 0;
+    //virtual std::vector<std::unique_ptr<Pokemon>> getAllPokemon() = 0;
+    //virtual std::vector<std::unique_ptr<Moves>> getMovepoolFromPokemon() = 0;
+    //virtual std::vector<std::unique_ptr<Abilities>> getAllAbilities() = 0;
+    //virtual std::vector<std::unique_ptr<Moves>> getAllMoves() = 0;
     virtual ~IPokemonRepository() = default;
 };
 

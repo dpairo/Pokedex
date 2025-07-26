@@ -6,9 +6,9 @@
 int main() {
 
     PokeApi api;
-    Pokemon charizard(api.getPokemonByName("charizard"));
+    Pokemon charizard(api.getPokemonByName("tapu-koko"));
 
-    std::cout << charizard.name;
+    std::cout << charizard;
 
     return 0;
 }

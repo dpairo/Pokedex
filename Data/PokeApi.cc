@@ -28,12 +28,23 @@ void PokeApi::setCurlOptions(CURL* curl, const std::string& fullUrl, std::string
     curl_easy_setopt(curl, CURLOPT_WRITEDATA, &responseData);       //  set the string where the data will be stored.
 }
 
+bool startsWith(const std::string& fullString, const std::string& prefix) {
+    return fullString.size() >= prefix.size() &&
+           fullString.compare(0, prefix.size(), prefix) == 0;
+}
+
 std::string PokeApi::makeRequest(const std::string &endpoint) {
-    const std::string baseUrl = "https://pokeapi.co/api/v2/";
+    std::string fullUrl;
+    std::string prefix = "http";
 
-    std::string fullUrl = baseUrl + endpoint;
+    if (startsWith(endpoint, prefix)) {
+        fullUrl = endpoint;
+    } else {
+        const std::string baseUrl = "https://pokeapi.co/api/v2/";
+        fullUrl = baseUrl + endpoint;
+    }
+
     std::string responseData;
-
     CURL* curl = curl_easy_init();
 
     if(curl) {                                                          //  checks that everything is ok to start configuration.
@@ -70,7 +81,7 @@ PokemonDTO PokeApi::getPokemonByName(const std::string &pokemonName) {
     std::string pokemonSpeciesEndpoint = pokemonSpeciesRequest + pokemonName;
 
     std::string pokemonDetailsRawJson = makeRequest(pokemonDetailsEndpoint);
-    std::string pokemonSpeciesRawJson = makeRequest(pokemonDetailsRequest);
+    std::string pokemonSpeciesRawJson = makeRequest(pokemonSpeciesEndpoint);
 
     SinglePokemonMapper pokemonMapper;
     PokemonDTO dto = pokemonMapper.transformDataPokemonJson(pokemonDetailsRawJson, pokemonSpeciesRawJson, pokemonEvoltuionChainRequest);
@@ -81,6 +92,7 @@ PokemonDTO PokeApi::getPokemonByName(const std::string &pokemonName) {
     return(dto);
 }
 
+/*
 std::vector<std::unique_ptr<Pokemon>> PokeApi::getAllPokemon() {
     std::string typeRequest = "pokemon?limit=100000";
     std::string endpoint = typeRequest;
@@ -99,3 +111,4 @@ std::vector<std::unique_ptr<Abilities>> PokeApi::getAllAbilities() {
 
     makeRequest(endpoint);
 }
+*/
