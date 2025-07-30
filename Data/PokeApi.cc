@@ -5,11 +5,12 @@
 
 #include "PokeApi.h"
 #include "JsonMappers/SinglePokemonMapper.h"
+#include "JsonMappers/AllPokemonMapper.h"
 
-//  size -> Size of each data unit recieved.
+//  size -> Size of each data unit received.
 //  numberEntities -> Number of units of that size received.
-size_t PokeApi::callBack(void* contents, size_t size, size_t numberEntities, std::string* output) {
-    size_t totalSize = size * numberEntities;
+size_t  PokeApi::callBack(void* contents, size_t size, size_t numberEntities, std::string* output) {
+    const size_t totalSize = size * numberEntities;
     output->append((char*)contents, totalSize);
     return totalSize;
 }
@@ -18,7 +19,7 @@ void PokeApi::sendRequest(CURL* curl) {
     CURLcode apiResponse = curl_easy_perform(curl);                 //  starts with the request and calls callBack everytime that gets data.
 
     if(apiResponse != CURLE_OK) {
-        //  call excepcions
+        //  call exceptions
     }
 }
 
@@ -34,8 +35,8 @@ bool startsWith(const std::string& fullString, const std::string& prefix) {
 }
 
 std::string PokeApi::makeRequest(const std::string &endpoint) {
+    const std::string prefix = "http";
     std::string fullUrl;
-    std::string prefix = "http";
 
     if (startsWith(endpoint, prefix)) {
         fullUrl = endpoint;
@@ -72,11 +73,11 @@ std::string PokeApi::getPokemonName() {
     return pokemonName;
 }
 
-//  All the pokemon informations is splited into three url.
+//  All the Pokemon information is splited into three url.
 PokemonDTO PokeApi::getPokemonByName(const std::string &pokemonName) {
     std::string pokemonDetailsRequest = "pokemon/";
     std::string pokemonSpeciesRequest = "pokemon-species/";
-    std::string pokemonEvoltuionChainRequest;
+
     std::string pokemonDetailsEndpoint = pokemonDetailsRequest + pokemonName;
     std::string pokemonSpeciesEndpoint = pokemonSpeciesRequest + pokemonName;
 
@@ -84,31 +85,61 @@ PokemonDTO PokeApi::getPokemonByName(const std::string &pokemonName) {
     std::string pokemonSpeciesRawJson = makeRequest(pokemonSpeciesEndpoint);
 
     SinglePokemonMapper pokemonMapper;
-    PokemonDTO dto = pokemonMapper.transformDataPokemonJson(pokemonDetailsRawJson, pokemonSpeciesRawJson, pokemonEvoltuionChainRequest);
+    std::string pokemonEvolutionChainRequest;
+    PokemonDTO dto = pokemonMapper.transformDataPokemonJson(pokemonDetailsRawJson, pokemonSpeciesRawJson, pokemonEvolutionChainRequest);
 
-    std::string pokemonEvoltuionChainRawJson = makeRequest(pokemonEvoltuionChainRequest);
-    dto.evolutionChain = pokemonMapper.transformEvolutionChainJson(pokemonEvoltuionChainRawJson);
+    std::string pokemonEvolutionChainRawJson = makeRequest(pokemonEvolutionChainRequest);
+    dto.evolutionChain = pokemonMapper.transformEvolutionChainJson(pokemonEvolutionChainRawJson);
 
     return(dto);
 }
 
-/*
-std::vector<std::unique_ptr<Pokemon>> PokeApi::getAllPokemon() {
-    std::string typeRequest = "pokemon?limit=100000";
-    std::string endpoint = typeRequest;
+std::vector<std::string> PokeApi::getAllPokemon() {
+    const std::string allPokemonEndPoint = "pokemon?limit=100000";
+
+    const std::string allPokemonRawJson = makeRequest(allPokemonEndPoint);
+
+    AllPokemonMapper pokemonMapper;
+
+    std::vector<std::string> allPokemon = pokemonMapper.transformAll(allPokemonRawJson);
+
+    return allPokemon;
 }
 
-std::vector<std::unique_ptr<Moves>> PokeApi::getAllMoves() {
-    std::string typeRequest = "move?limit=100000";
-    std::string endpoint = typeRequest;
+std::vector<std::string> PokeApi::getAllMoves() {
+    const std::string allMovesEndPoint = "move?limit=100000";
 
-    makeRequest(endpoint);
+    const std::string allMovesRawJson = makeRequest(allMovesEndPoint);
+
+    AllPokemonMapper pokemonMapper;
+
+    std::vector<std::string> allMoves = pokemonMapper.transformAll(allMovesRawJson);
+
+    return allMoves;
 }
 
-std::vector<std::unique_ptr<Abilities>> PokeApi::getAllAbilities() {
-    std::string typeRequest = "ability?limit=100000";
-    std::string endpoint = typeRequest;
+std::vector<std::string> PokeApi::getAllAbilities() {
+    const std::string allAbilitiesEndPoint = "ability?limit=100000";
 
-    makeRequest(endpoint);
+    const std::string allAbilitiesRawJson = makeRequest(allAbilitiesEndPoint);
+
+    AllPokemonMapper pokemonMapper;
+
+    std::vector<std::string> allAbilities = pokemonMapper.transformAll(allAbilitiesRawJson);
+
+    return allAbilities;
 }
-*/
+
+void PokeApi::getMovePoolFromPokemon(const std::string &pokemonName, std::vector<std::string> &allMoves, std::vector<std::string> &allMethods, std::string &lastVersion) {
+    const std::string pokemonDetailsRequest = "pokemon/";
+    const std::string pokemonVersionsEndPoint = "version-group?limit=100000&offset=0";
+    const std::string pokemonDetailsEndpoint = pokemonDetailsRequest + pokemonName;
+
+    const std::string pokemonAndMovePoolRawString = makeRequest(pokemonDetailsEndpoint);
+    const std::string pokemonVersionsRawString = makeRequest(pokemonVersionsEndPoint);
+
+    SinglePokemonMapper pokemonMapper;
+    pokemonMapper.transformMovePool(pokemonAndMovePoolRawString,pokemonVersionsRawString,allMoves,allMethods, lastVersion);
+}
+
+

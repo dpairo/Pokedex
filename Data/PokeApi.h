@@ -9,25 +9,22 @@
 #include <curl/curl.h>
 
 #include "Domain/IPokemonRepository.h"
-#include "Domain/Pokemon.h"
 #include "Domain/PokemonDTO.h"
 
-class PokeApi : public IPokemonRepository {
-    private:
-        PokemonDTO parseJsonToDTO(const nlohmann::json& json);
-        std::string makeRequest(const std::string& endpoint);
-        std::string getPokemonName();
-        void setCurlOptions(CURL* curl, const std::string& url, std::string& responseData);
-        void sendRequest(CURL* curl);
-
+class PokeApi final : public IPokemonRepository  {
     public:
         PokemonDTO getPokemonByName(const std::string &pokemonName) override;
-        //std::vector<std::unique_ptr<Moves>> getMovepoolFromPokemon() override;
-        //std::vector<std::unique_ptr<Pokemon>> getAllPokemon() override;
-        //std::vector<std::unique_ptr<Abilities>> getAllAbilities() override;
-        //std::vector<std::unique_ptr<Moves>> getAllMoves() override;
+        void getMovePoolFromPokemon(const std::string &pokemonName, std::vector<std::string> &allMoves, std::vector<std::string> &allMethods, std::string &lastVersion) override;
+        std::vector<std::string> getAllPokemon() override;
+        std::vector<std::string> getAllAbilities() override;
+        std::vector<std::string> getAllMoves() override;
 
-    static size_t callBack(void* contents, size_t size, size_t nmemb, std::string* output);
+    private:
+        static std::string makeRequest(const std::string& endpoint);
+        static std::string getPokemonName();
+        static void setCurlOptions(CURL* curl, const std::string& url, std::string& responseData);
+        static void sendRequest(CURL* curl);
+        static size_t callBack(void* contents, size_t size, size_t numberEntities, std::string* output);
 };
 
 #endif

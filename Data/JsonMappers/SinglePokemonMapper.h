@@ -4,9 +4,13 @@
 #define _SINGLE_POKEMON_MAPPER_H_
 
 #include "Domain/PokemonDTO.h"
-#include "Domain/IMapper.h"
 
-class SinglePokemonMapper : public IJsonMapper {
+class SinglePokemonMapper {
+    public:
+        PokemonDTO transformDataPokemonJson(const std::string &pokemonDetailsRawJson, const std::string &pokemonSpeciesRawJson, std::string &evolutionChainUrl);
+        void transformMovePool(const std::string& pokemonAndMovePoolRawString, const std::string& versionsRawJson, std::vector<std::string>& allMoves, std::vector<std::string>& allMethods, std::string &lastVersion) const;
+        std::vector<std::string> transformEvolutionChainJson(const std::string &pokemonEvolutionChainRawJson) const;
+
     private:
         const std::string nameSeeker = "name";
         const std::string abilitiesSeeker = "abilities";
@@ -33,19 +37,29 @@ class SinglePokemonMapper : public IJsonMapper {
         const std::string chainSeeker = "chain";
         const std::string speciesSeeker = "species";
         const std::string evolvesToSeeker = "evolves_to";
-        void extractEvolutionChain(const nlohmann::json &jsonNode, std::vector<std::string> &evolutionChain);
-        void parseEvolutionChainUrl(const nlohmann::json &pokemonDataSpecies, std::string &evolutionChainUrl);
-        int parsePokemonHatchCounter(const nlohmann::json &pokemonDataSpecies);
-        int parsePokemonBaseExp(const nlohmann::json &pokemonDataDetails);
-        int parsePokedexId(const nlohmann::json &pokemonDataDetails);
-        std::vector<std::string> parsePokemonEggGroups(const nlohmann::json &pokemonDataSpecies);
-        std::vector<std::string> parsePokemonTyping(const nlohmann::json &pokemonDataDetails);
-        std::string parsePokemonName(const nlohmann::json &pokemonDataDetails);
-        std::vector<Abilities> parsePokemonAbilities(const nlohmann::json &pokemonDataDetails);
+        const std::string movesSeeker = "moves";
+        const std::string singularMoveSeeker = "move";
+        const std::string versionDetailsSeeker = "version_group_details";
+        const std::string versionGroupSeeker = "version_group";
+        const std::string redBluesSeeker = "red-blue";
+        const std::string resultsSeeker = "results";
+        const std::string levelUpSeeker = "level-up";
+        const std::string tutorSeeker = "tutor";
+        const std::string machineSeeker = "machine";
+        const std::string learnMethodSeeker = "move_learn_method";
+        std::string getPokemonLastVersion(const nlohmann::json &pokemonAndMovePoolJson, const std::unordered_map<std::string, int> &versionsMap) const;
+        std::unordered_map<std::string, int> getVersionsWithId(const nlohmann::json &versionJson) const ;
+        void parseMovePool(const nlohmann::json& movePoolJson, std::vector<std::string>& allMoves, std::vector<std::string> &allMethods, const std::string& lastVersion) const;
+        void extractEvolutionChain(const nlohmann::json &jsonNode, std::vector<std::string> &evolutionChain) const;
+        void parseEvolutionChainUrl(const nlohmann::json &pokemonDataSpecies, std::string &evolutionChainUrl) const;
+        int parsePokemonHatchCounter(const nlohmann::json &pokemonDataSpecies) const;
+        int parsePokemonBaseExp(const nlohmann::json &pokemonDataDetails) const;
+        int parsePokedexId(const nlohmann::json &pokemonDataDetails) const;
+        std::vector<std::string> parsePokemonEggGroups(const nlohmann::json &pokemonDataSpecies) const;
+        std::vector<std::string> parsePokemonTyping(const nlohmann::json &pokemonDataDetails) const;
+        std::string parsePokemonName(const nlohmann::json &pokemonDataDetails) const;
+        std::vector<Abilities> parsePokemonAbilities(const nlohmann::json &pokemonDataDetails) const;
         Statistics parsePokemonStats(const nlohmann::json &pokemonDataDetails);
-    public:
-        PokemonDTO transformDataPokemonJson(const std::string &pokemonDetailsRawJson, const std::string &pokemonSpeciesRawJson, std::string &evolutionChainUrl) override;
-        std::vector<std::string> transformEvolutionChainJson(const std::string &pokemonEvoltuionChainRawJson);
 };
 
 #endif

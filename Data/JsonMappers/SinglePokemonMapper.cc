@@ -1,13 +1,85 @@
 //  Implementation to the Json mapper to parse Json when just 1 pokemon has been requested
 
-#include <iostream>
 #include <nlohmann/json.hpp>
 #include <vector>
 #include <unordered_map>
 
 #include "SinglePokemonMapper.h"
 
-void SinglePokemonMapper::extractEvolutionChain(const nlohmann::json &evolutionNode, std::vector<std::string> &evolutionChain) {
+void SinglePokemonMapper::parseMovePool(const nlohmann::json &movePoolJson , std::vector<std::string>& allMoves,  std::vector<std::string>& allMethods, const std::string &lastVersion) const {
+    for (const auto &moves : movePoolJson[movesSeeker]) {
+        for (const auto &methods : moves[versionDetailsSeeker]) {
+            const std::string method = methods[versionGroupSeeker][nameSeeker].get<std::string>();
+            if (lastVersion == method) {
+                allMoves.push_back(moves[singularMoveSeeker][nameSeeker].get<std::string>());
+                allMethods.push_back(methods[learnMethodSeeker][nameSeeker].get<std::string>());
+            }
+        }
+    }
+}
+
+std::string SinglePokemonMapper::getPokemonLastVersion(const nlohmann::json &pokemonAndMovePoolJson,const std::unordered_map<std::string, int> &versionsMap) const {
+    std::string pokemonLastVersion = redBluesSeeker;
+    int highestId = 0;
+    auto it0 = versionsMap.find(pokemonLastVersion);
+    if (it0 != versionsMap.end()) {
+        highestId = it0->second;
+    }
+
+    for (const auto &pokemonMove : pokemonAndMovePoolJson[movesSeeker]) {
+        for (const auto &version : pokemonMove[versionDetailsSeeker]) {
+            std::string candidate = version[versionGroupSeeker][nameSeeker].get<std::string>();
+            auto it = versionsMap.find(candidate);
+            if (it != versionsMap.end() && it->second > highestId) {
+                highestId = it->second;
+                pokemonLastVersion = candidate;
+            }
+        }
+    }
+    return pokemonLastVersion;
+}
+
+std::unordered_map<std::string,int> SinglePokemonMapper::getVersionsWithId(const nlohmann::json &versionJson) const {
+    const std::string indigoDisk = "the-indigo-disk";
+    const std::string tealMask = "the-teal-mask";
+    const std::string isleOfArmor = "the-isle-of-armor";
+    const std::string crownTundra = "the-crown-tundra";
+    const std::string swordShield = "sword-shield";
+    const std::string scarletViolet = "scarlet-violet";
+
+    std::unordered_map<std::string,int> versionsMap;
+    int currentVersion = 0;
+
+    if (!versionJson.contains("results")) {
+        return versionsMap;
+    }
+
+    for (const auto &entry : versionJson[resultsSeeker]) {
+        if (!entry.contains(nameSeeker)) continue;
+        std::string versionName = entry[nameSeeker].get<std::string>();
+        ++currentVersion;
+        if (versionName == indigoDisk || versionName == tealMask) {
+            versionName = scarletViolet;
+        }
+        else if (versionName == isleOfArmor || versionName == crownTundra) {
+            versionName = swordShield;
+        }
+
+        versionsMap.emplace(versionName, currentVersion);
+    }
+
+    static const std::vector<std::string> versionsToErase = {
+        "red-green-japan","blue-japan","brilliant-diamond-and-shining-pearl",
+        "lets-go-pikachu-lets-go-eevee","xd","colosseum","legends-arceus"
+    };
+    for (const auto &bad : versionsToErase) {
+        versionsMap.erase(bad);
+    }
+
+    return versionsMap;
+}
+
+void SinglePokemonMapper::extractEvolutionChain(const nlohmann::json &evolutionNode, std::vector<std::string> &evolutionChain) const {
     evolutionChain.push_back(evolutionNode[speciesSeeker][nameSeeker]);
 
     for(const auto &nextEvolution : evolutionNode[evolvesToSeeker]) {
@@ -15,9 +87,9 @@ void SinglePokemonMapper::extractEvolutionChain(const nlohmann::json &evolutionN
     }
 }
 
-std::vector<std::string> SinglePokemonMapper::transformEvolutionChainJson(const std::string &pokemonEvoltuionChainRawJson) {
-    nlohmann::json pokemonEvolutionChainData = nlohmann::json::parse(pokemonEvoltuionChainRawJson);
-    nlohmann::json jsonBlock = pokemonEvolutionChainData[chainSeeker];
+std::vector<std::string> SinglePokemonMapper::transformEvolutionChainJson(const std::string &pokemonEvolutionChainRawJson) const {
+    nlohmann::json pokemonEvolutionChainData = nlohmann::json::parse(pokemonEvolutionChainRawJson);
+    const nlohmann::json jsonBlock = pokemonEvolutionChainData[chainSeeker];
     std::vector<std::string> evolutionChain;
 
     extractEvolutionChain(jsonBlock, evolutionChain);
@@ -25,24 +97,24 @@ std::vector<std::string> SinglePokemonMapper::transformEvolutionChainJson(const 
     return evolutionChain;
 }
 
-void SinglePokemonMapper::parseEvolutionChainUrl(const nlohmann::json &pokemonDataSpecies, std::string &evolutionChainUrl) {
+void SinglePokemonMapper::parseEvolutionChainUrl(const nlohmann::json &pokemonDataSpecies, std::string &evolutionChainUrl) const {
     evolutionChainUrl = pokemonDataSpecies[evolutionChainSeeker][urlSeeker];
 }
 
-int SinglePokemonMapper::parsePokemonHatchCounter(const nlohmann::json &pokemonDataSpecies) {
-    int stepsToEclose = 255;
+int SinglePokemonMapper::parsePokemonHatchCounter(const nlohmann::json &pokemonDataSpecies) const {
+    const int stepsToEclose = 255;
     return pokemonDataSpecies[hatchCounterSeeker].get<int>() * stepsToEclose;
 }
 
-int SinglePokemonMapper::parsePokemonBaseExp(const nlohmann::json &pokemonDataDetails) {
+int SinglePokemonMapper::parsePokemonBaseExp(const nlohmann::json &pokemonDataDetails) const {
     return pokemonDataDetails[baseExperienceSeeker];
 }
 
-int SinglePokemonMapper::parsePokedexId(const nlohmann::json &pokemonDataDetails){
+int SinglePokemonMapper::parsePokedexId(const nlohmann::json &pokemonDataDetails) const {
     return pokemonDataDetails[idSeeker];
 }
 
-std::vector<std::string> SinglePokemonMapper::parsePokemonEggGroups(const nlohmann::json &pokemonDataSpecies){
+std::vector<std::string> SinglePokemonMapper::parsePokemonEggGroups(const nlohmann::json &pokemonDataSpecies) const {
     std::vector<std::string> eggGroups;
 
     for(const auto &eggGroupData : pokemonDataSpecies[eggGroupsSeeker]) {
@@ -51,7 +123,7 @@ std::vector<std::string> SinglePokemonMapper::parsePokemonEggGroups(const nlohma
     return eggGroups;
 }
 
-std::vector<std::string> SinglePokemonMapper::parsePokemonTyping(const nlohmann::json &pokemonDataDetails) {
+std::vector<std::string> SinglePokemonMapper::parsePokemonTyping(const nlohmann::json &pokemonDataDetails) const {
     std::vector<std::string> typing;
 
     for (const auto& typeInfo : pokemonDataDetails[typesSeeker]) {
@@ -62,7 +134,7 @@ std::vector<std::string> SinglePokemonMapper::parsePokemonTyping(const nlohmann:
 }
 
 Statistics SinglePokemonMapper::parsePokemonStats(const nlohmann::json &pokemonDataDetails) {
-    Statistics pokemonStats;
+    Statistics pokemonStats{};
 
     std::unordered_map<std::string, int Statistics::*> statsMap = {
         {healthSeeker, &Statistics::health},
@@ -75,7 +147,7 @@ Statistics SinglePokemonMapper::parsePokemonStats(const nlohmann::json &pokemonD
 
     for(const auto &statsData : pokemonDataDetails[statsSeeker]) {
         std::string statName = statsData[singleStatSeeker][nameSeeker];
-        int baseStatValue = statsData[baseStatValueSeeker];
+        const int baseStatValue = statsData[baseStatValueSeeker];
 
         auto pair = statsMap.find(statName);
 
@@ -86,7 +158,7 @@ Statistics SinglePokemonMapper::parsePokemonStats(const nlohmann::json &pokemonD
     return pokemonStats;
 }
 
-std::vector<Abilities> SinglePokemonMapper::parsePokemonAbilities(const nlohmann::json &pokemonDataDetails) {
+std::vector<Abilities> SinglePokemonMapper::parsePokemonAbilities(const nlohmann::json &pokemonDataDetails) const {
     std::vector<Abilities> abilitiesSet;
 
     for(const auto &abilityData : pokemonDataDetails[abilitiesSeeker]) {
@@ -100,13 +172,23 @@ std::vector<Abilities> SinglePokemonMapper::parsePokemonAbilities(const nlohmann
     return abilitiesSet;
 }
 
-std::string SinglePokemonMapper::parsePokemonName(const nlohmann::json &pokemonDataDetails) {
+std::string SinglePokemonMapper::parsePokemonName(const nlohmann::json &pokemonDataDetails) const {
     return pokemonDataDetails[nameSeeker];
 }
 
+void SinglePokemonMapper::transformMovePool(const std::string& pokemonAndMovePoolRawString, const std::string &versionsRawJson, std::vector<std::string> &allMoves, std::vector<std::string> &allMethods, std::string &lastVersion) const {
+    const nlohmann::json pokemonAndMovePoolJson = nlohmann::json::parse(pokemonAndMovePoolRawString);
+    const nlohmann::json versionsJson = nlohmann::json::parse(versionsRawJson);
+
+    const std::unordered_map<std::string, int> versionsMap = getVersionsWithId(versionsJson);
+    lastVersion = getPokemonLastVersion(pokemonAndMovePoolJson, versionsMap);
+
+    parseMovePool(pokemonAndMovePoolJson, allMoves, allMethods, lastVersion);
+}
+
 PokemonDTO SinglePokemonMapper::transformDataPokemonJson(const std::string &pokemonDetailsRawJson, const std::string &pokemonSpeciesRawJson, std::string &evolutionChainUrl) {
-    nlohmann::json pokemonDataDetails = nlohmann::json::parse(pokemonDetailsRawJson);
-    nlohmann::json pokemonDataSpecies = nlohmann::json::parse(pokemonSpeciesRawJson);
+    const nlohmann::json pokemonDataDetails = nlohmann::json::parse(pokemonDetailsRawJson);
+    const nlohmann::json pokemonDataSpecies = nlohmann::json::parse(pokemonSpeciesRawJson);
 
     PokemonDTO dto;
     dto.name = parsePokemonName(pokemonDataDetails);
@@ -121,5 +203,3 @@ PokemonDTO SinglePokemonMapper::transformDataPokemonJson(const std::string &poke
 
     return dto;
 }
-
-
